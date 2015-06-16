@@ -4,7 +4,7 @@ var http = require('http'),
     roviReq = require('request'),
     MongoClient = require('mongodb').MongoClient,
     Server = require('mongodb').Server,
-    CollectionDriver = require('./collectionDriver').CollectionDriver;
+    CollectionDriver = require('./lib/model/collectionDriver').CollectionDriver;
  
 var app = express();
 app.set('port', process.env.PORT || 3000); 
@@ -25,7 +25,7 @@ mongoClient.open(function(err, mongoClient) { //C
       console.error("Error! Exiting... Must start MongoDB first");
       process.exit(1); //D
   }
-  var db = mongoClient.db("Cloud-WyPlay");  //E
+  var db = mongoClient.db("Test-node-rovi");  //E
   collectionDriver = new CollectionDriver(db); //F
   initialize();
 });
@@ -39,51 +39,23 @@ res.send('<html><body><h1>Welcome to EPG Server</h1></body></html>');
 });
 
 
-app.get('/:collection/epgService/programLists', function(req, res, next) { 
-  var channelId = req.query.channelIds;
-  var userStartTime = req.query.userStartTime;
-  var userEndTime = req.query.userEndTime;
-
-
-  //var chanelName = req.query.namee;
-  var params = req.params;
-  console.log("Request Data"+params);
-  var entity = channelId;
-  console.log("channelName = "+channelId + " userStartTime = "+userStartTime+" userEndTime= " +userEndTime );
-  var collection = params.collection;
-  console.log("collection Data"+collection);
-  console.log("get all programlist:::::::::::::::"+channelId);
-   if (entity) {
-       collectionDriver.programList(collection, channelId,userStartTime,userEndTime,  function(error, objs) { //J
-          if (error) { res.send(400, error); }
-          else { res.send(200, objs); } //K
-       });
-   } else {
-      res.send(400, {error: 'bad url', url: req.url});
-   }
-
-
-});
-
-
 function initialize() {
-collectionDriver.find(collectionName,function(err, obj) {
-	var dt = new Date(obj).getUTCDate();
-	var da = new Date().getUTCDate();
-	if ((obj !== undefined) || (da !== dt)) {
-		collectionDriver.delete(collectionName,function() {
-			epgChannelList(function(channelList) {
-            console.log('------------------------------------------');
-            console.log(channelList);
+    collectionDriver.find(collectionName,function(err, obj) {
+        var dt = new Date(obj).getUTCDate();
+        var da = new Date().getUTCDate();
+        if ((obj !== undefined) || (da !== dt)) {
+            collectionDriver.delete(collectionName,function() {
+                epgChannelList(function(channelList) {
                 console.log('------------------------------------------');
-			epgProgramList();
+                console.log(channelList);
+                    console.log('------------------------------------------');
+                epgProgramList();
 
-			});
-		
-	     	});
-	}
-});
+                });
 
+                });
+        }
+    });
 };
 
 function epgChannelList(callback) {
@@ -156,7 +128,6 @@ function programListArray(url,i, callback) {
 	});	
 };
 
-
 function rovicall(url, callback) {
 console.log("rovicall");
 roviReq(url, function (error, response, body) {
@@ -168,7 +139,6 @@ roviReq(url, function (error, response, body) {
 
 };
 
- 
 app.get('/:collection', function(req, res, next) {  
    var params = req.params;
    var query = req.query; //1
@@ -183,8 +153,6 @@ console.log("inside get with query"+query);
         collectionDriver.findAll(req.params.collection, returnCollectionResults(req,res)); //4
    }
 });
-
-
  
 function returnCollectionResults(req, res) {
     return function(error, objs) { //5
@@ -202,7 +170,6 @@ function returnCollectionResults(req, res) {
     };
 }; 
 
-
 app.post('/:collection', function(req, res) { //A
     var object = req.body;
     var collection = req.params.collection;
@@ -212,8 +179,6 @@ app.post('/:collection', function(req, res) { //A
      });
 });
 
-
- 
 app.use(function (req,res) {
     res.render('404', {url:req.url});
 });

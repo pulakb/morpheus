@@ -1,0 +1,24 @@
+{
+  "name": "rovi-node-server",
+  "version": "0.0.1",
+  "description": "Reading Rovi Data",
+  "main": "index.js",
+  "author": "Pulak",
+  "scripts": {
+    "start": "pm2 start index.js"
+  },
+  "dependencies": {
+    "body-parser": "~1.4.3",
+    "custom-err": "0.0.2",
+    "debug": "~0.7.4",
+    "express": "~4.6.1",
+    "method-override": "~1.0.0",
+    "mongodb": "^1.4.35",
+    "path": "*",
+    "request": "~2.16.6",
+    "url": "*"
+  },
+  "devDependencies": {
+    "pm2": "~0.14.0"
+  }
+}
