@@ -76,46 +76,61 @@ function epgChannelList(callback) {
 	});
 
 };
- 
+
 function epgProgramList() {
-	var dt = new Date();
-	var utcTime = dt.toISOString();
-	dt.setUTCMinutes(00);dt.setUTCSeconds(00); dt.setUTCHours(00);dt.setUTCMilliseconds(00);
-	var urlList = [];
+  var dt;
 
-	for (var i = 0; i < 6; i++) {
-		console.log("dt.toISOString::::"+dt.toISOString());//http://api.rovicorp.com/TVlistings/v9/listings/////
-		var url = "http://api.rovicorp.com/TVlistings/v9/listings/gridschedule/20394/info?apikey=s8brrx2spxjb82wy7w42s583&sig=sig&includechannelimages=true&locale=en-US&startdate="+dt.toISOString()+"&duration=30";
-		programListArray(url, 0, function(err1, obj1) {
-			
-		if (err1) { console.log(err1); }
-		   else {
+  for (var j = 0; j < 7; j++) {
 
-			collectionDriver.removeDuplicate(collectionName, channelList, function(err, obj) { 
+      if (j === 0) {
+          dt = new Date();
+      }
 
-			if(!err) {
-                console.log("hhe");
-                console.log(obj);
-            }
-			});
-		   }
+      //var dt = new Date();
+      var utcTime = dt.toISOString();
+      dt.setUTCMinutes(00);
+      dt.setUTCSeconds(00);
+      dt.setUTCHours(00);
+      dt.setUTCMilliseconds(00);
+      var urlList = [];
+
+      for (var i = 0; i < 6; i++) {
+          console.log("dt.toISOString::::" + dt.toISOString());//http://api.rovicorp.com/TVlistings/v9/listings/////
+          var url = "http://api.rovicorp.com/TVlistings/v9/listings/gridschedule/20394/info?apikey=s8brrx2spxjb82wy7w42s583&sig=sig&includechannelimages=true&locale=en-US&startdate=" + dt.toISOString() + "&duration=30";
+
+          programListArray(url, 0, function (err1, obj1) {
+
+              if (err1) {
+                  console.log(err1);
+              }
+              else {
+
+                  collectionDriver.removeDuplicate(collectionName, channelList, function (err, obj) {
+
+                      if (!err) {
+                          console.log("hhe");
+                          console.log(obj);
+                      }
+                  });
+              }
 
 
+          });
+          dt.setUTCHours(dt.getUTCHours() + 4);
 
-		});
-		dt.setUTCHours(dt.getUTCHours() + 4);
-
-	}
+      }
+  }
 
 };
 
 //Display all program list
 function programListArray(url,i, callback) {
+        console.log(url);
 		rovicall(url, function(body){
 		var data = JSON.parse(body);
 		var collection = collectionName;
 		obj = data.GridScheduleResult.GridChannels;
-            console.log(obj);
+            //console.log(obj);
 		//obj.created_at = new Date(); 
 		collectionDriver.savePrograms(collection,obj, function(error, objs) {
 		   if (error) { console.log(error); }
