@@ -1,46 +1,42 @@
+/*'use strict';*/
+
 var http = require('http'),
     express = require('express'),
     path = require('path'),
     roviReq = require('request'),
     MongoClient = require('mongodb').MongoClient,
     Server = require('mongodb').Server,
-    CollectionDriver = require('./lib/model/collectionDriver').CollectionDriver;
- 
-var app = express();
-app.set('port', process.env.PORT || 3000); 
-app.set('views', path.join(__dirname, 'views'));
-app.set('view engine', 'jade');
-//app.use(express.bodyParser()); // <-- add
+    CollectionDriver = require('./lib/model/collectionDriver').CollectionDriver,
+    serverConfig = require('./config'),
+    webServer;
 
-var mongoHost = 'localhost'; //A
-var mongoPort = 27017; 
 var collectionDriver;
-var collectionName = "rovi";
+var collectionName = serverConfig.dbServer.collectionName;
 var channelList = [];
  
-var mongoClient = new MongoClient(new Server(mongoHost, mongoPort)); //B
+var mongoClient = new MongoClient(new Server(serverConfig.dbServer.mongoHost, serverConfig.dbServer.mongoPort));
 
 mongoClient.open(function(err, mongoClient) { //C
   if (!mongoClient) {
       console.error("Error! Exiting... Must start MongoDB first");
       process.exit(1); //D
   }
-  var db = mongoClient.db("Test-node-rovi");  //E
+  var db = mongoClient.db(serverConfig.dbServer.dbName);  //E
   collectionDriver = new CollectionDriver(db); //F
   initialize();
 });
 
-app.use(express.static(path.join(__dirname, 'public')));
+/*app.use(express.static(path.join(__dirname, 'public')));
  
 
 
 app.get('/', function (req, res) {
 res.send('<html><body><h1>Welcome to EPG Server</h1></body></html>');
-});
+});*/
 
 
 function initialize() {
-    collectionDriver.find(collectionName,function(err, obj) {
+    collectionDriver.find(collectionName, function(err, obj) {
         var dt = new Date(obj).getUTCDate();
         var da = new Date().getUTCDate();
         if ((obj !== undefined) || (da !== dt)) {
@@ -154,7 +150,7 @@ roviReq(url, function (error, response, body) {
 
 };
 
-app.get('/:collection', function(req, res, next) {  
+/*app.get('/:collection', function(req, res, next) {
    var params = req.params;
    var query = req.query; //1
 console.log("before query " + req.params.collection);
@@ -167,7 +163,7 @@ console.log("inside get with query"+query);
    } else {
         collectionDriver.findAll(req.params.collection, returnCollectionResults(req,res)); //4
    }
-});
+});*/
  
 function returnCollectionResults(req, res) {
     return function(error, objs) { //5
@@ -185,19 +181,23 @@ function returnCollectionResults(req, res) {
     };
 }; 
 
-app.post('/:collection', function(req, res) { //A
+/*app.post('/:collection', function(req, res) { //A
     var object = req.body;
     var collection = req.params.collection;
     collectionDriver.save(collection, object, function(err,docs) {
           if (err) { res.send(400, err); } 
           else { res.send(201, docs); } //B
      });
-});
+});*/
 
-app.use(function (req,res) {
+/*app.use(function (req,res) {
     res.render('404', {url:req.url});
-});
+});*/
 
-http.createServer(app).listen(app.get('port'), function(){
+/*http.createServer(app).listen(app.get('port'), function(){
   console.log('Express server listening on port ' + app.get('port'));
-});
+});*/
+
+webServer = http.createServer(function (req, res) {});
+webServer.listen(serverConfig.webServer['port']);
+console.log('Server is listening');
