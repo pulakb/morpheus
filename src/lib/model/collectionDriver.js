@@ -1,7 +1,14 @@
 var ObjectID = require('mongodb').ObjectID;
+
 var path = require("path");
 var url = require("url");
+
 var channelImage = [];
+
+/*
+* Define 'CollectionDriver' constructor function and methods to its
+* prototypes.
+* */
 var CollectionDriver = function(db) {
     this.db = db;
 };
@@ -14,7 +21,11 @@ CollectionDriver.prototype.getCollection = function(collectionName, callback) {
     });
 };
 
-// Rovi
+/*
+* db.collection.find(query, projection) - Selects documents in a collection and returns a cursor to the selected documents.
+* The toArray() method returns an array that contains all the documents from a cursor. The method iterates completely
+* the cursor, loading all the documents into RAM and exhausting the cursor.
+* */
 
 CollectionDriver.prototype.find = function(collectionName, callback) {
     this.getCollection(collectionName, function(error, the_collection) { //A
@@ -37,8 +48,6 @@ CollectionDriver.prototype.find = function(collectionName, callback) {
 
 };
 
-//rovi
-
 //find all objects for a collection
 CollectionDriver.prototype.findAll = function(collectionName, callback) {
     this.getCollection(collectionName, function(error, the_collection) { //A
@@ -51,10 +60,6 @@ CollectionDriver.prototype.findAll = function(collectionName, callback) {
         }
     });
 };
-
-
-
-
 
 CollectionDriver.prototype.removeDuplicate = function(collectionName,channelList, callback) {
     var channelImage;
@@ -80,14 +85,8 @@ CollectionDriver.prototype.removeDuplicate = function(collectionName,channelList
                                     }
 
                                 });
-
-
-
-
                             }
                         });
-
-
                     }
                 });
             }
@@ -100,8 +99,6 @@ CollectionDriver.prototype.removeDuplicate = function(collectionName,channelList
     });
 };
 
-
-//rovi
 CollectionDriver.prototype.savePrograms = function(collectionName, obj, callback) {
     var SourceId;
     var Programs;
@@ -114,7 +111,7 @@ CollectionDriver.prototype.savePrograms = function(collectionName, obj, callback
                 Programs = obj[i].Airings;
                 if (obj[i] !== undefined && obj[i].ChannelImages.length == 1) {
                     //console.log("yes........savePrograms."+obj.length);
-                    var path = "/assets/channels_logo/"
+                    var path = "/assets/channels_logo/";
                     var myUrl = obj[i].ChannelImages[0].ImageUrl;
                     var pathname = url.parse(myUrl).pathname;
                     var last = pathname.substring(pathname.lastIndexOf("/") + 1);
@@ -126,8 +123,15 @@ CollectionDriver.prototype.savePrograms = function(collectionName, obj, callback
             }
 
             callback();
-            function updateChannels(SourceId, Programs, channelImage) {
 
+            /*
+            * db.collection.update(query, update, options) - Modifies an existing document or documents in a collection.
+            * The method can modify specific fields of an existing document or documents or replace an existing
+            * document entirely, depending on the update parameter.
+            * By default, the update() method updates a single document.
+            * */
+
+            function updateChannels(SourceId, Programs, channelImage) {
                 the_collection.update({"SourceId":SourceId, "channelImage": channelImage},{$pushAll:{ "Programs": Programs}},{upsert: true}, function() {
                 });
             }
@@ -135,21 +139,15 @@ CollectionDriver.prototype.savePrograms = function(collectionName, obj, callback
     });
 };
 
-
-//rovi
-//save new object
+/*
+* db.collection.insert() - Inserts a document or documents into a collection.
+* */
 CollectionDriver.prototype.save = function(collectionName, obj, callback) {
-    //var collName = "cloudDB1";
     this.getCollection(collectionName, function(error, the_collection) { //A
         if( error ) callback(error)
         else {
-            //obj.created_at = new Date(); //B
-            //console.log(obj);
             the_collection.insert({"name":"channelArray", "channels": obj, "created_at":new Date()}, function() { //C
                 console.log("Insertedd...");
-//the_collection.insert({"name":"page1"}, function(error) {
-                //if (error) {callback(error);}
-//});
                 callback(null, obj);
             });
 
@@ -157,8 +155,9 @@ CollectionDriver.prototype.save = function(collectionName, obj, callback) {
     });
 };
 
-//rovi
-//delete a specific object
+/*
+* db.collection.remove() - Removes documents from a collection.
+* */
 CollectionDriver.prototype.delete = function(collectionName, callback) {
     this.getCollection(collectionName, function(error, the_collection) { //A
         if (error) callback(error)
@@ -171,7 +170,6 @@ CollectionDriver.prototype.delete = function(collectionName, callback) {
     });
 }
 
-//rovi
 //Perform a collection query
 CollectionDriver.prototype.query = function(collectionName, query, callback) { //1
     console.log("calling the query function with query and collection " + JSON.stringify(query)  +":" + collectionName);
@@ -182,8 +180,6 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
             callback(error);
         }
         else {
-            console.log("all is well so far");
-
             the_collection.find(query).toArray(function(error, results)
 
             { //3
@@ -201,9 +197,5 @@ CollectionDriver.prototype.query = function(collectionName, query, callback) { /
         }
     });
 };
-
-
-
-
 
 exports.CollectionDriver = CollectionDriver;

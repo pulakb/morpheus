@@ -24,9 +24,6 @@ Provider.prototype.initialize = function () {
         if ((obj !== undefined) || (da !== dt)) {
             _self.collectionDriver.delete(this.collectionName,function() {
                 _self.epgChannelList(function(channelList) {
-                    console.log('------------------------------------------');
-                    console.log(channelList);
-                    console.log('------------------------------------------');
                     _self.epgProgramList();
                 });
 
@@ -39,14 +36,15 @@ Provider.prototype.epgChannelList = function (callback) {
     var obj;
     var collection = this.collectionName;
     var _self = this;
-   // var data;
 
-    var url = "http://api.rovicorp.com/TVlistings/v9/listings/gridschedule/20394/info?locale=en-US&duration=30&includechannelimages=false&format=json&apikey=2pf79jxpfqsqjd2jcrcw65as";
+    // Set the Rovi API from Config
+    var url = serverConfig.roviApi;
+
     _self.rovicall(url, function(body){
         var sourceId = "";
         if (body){ data = JSON.parse(body);}
         obj = data.GridScheduleResult.GridChannels;
-        //obj.created_at = new Date();
+
         var count = 0;
         for (var i = 0; i < obj.length; i++) {
             _self.channelList.push(obj[i].SourceId);
@@ -74,9 +72,7 @@ Provider.prototype.epgProgramList = function () {
         var urlList = [];
 
         for (var i = 0; i < 6; i++) {
-            console.log("dt.toISOString::::" + dt.toISOString());//http://api.rovicorp.com/TVlistings/v9/listings/////
-
-            var url = "http://api.rovicorp.com/TVlistings/v9/listings/gridschedule/20394/info?apikey=s8brrx2spxjb82wy7w42s583&sig=sig&includechannelimages=true&locale=en-US&startdate=" + dt.toISOString() + "&duration=30";
+            var url = serverConfig.gridSchedule + dt.toISOString() + "&duration=30";
             this.programListArray(url, 0, function (err1, obj1) {
                 if (err1) {
                     console.log(err1);
@@ -84,7 +80,6 @@ Provider.prototype.epgProgramList = function () {
                 else {
                     _self.collectionDriver.removeDuplicate(_self.collectionName, _self.channelList, function (err, obj) {
                         if (!err) {
-                            console.log("hhe");
                             console.log(obj);
                         }
                     });
@@ -96,7 +91,6 @@ Provider.prototype.epgProgramList = function () {
 };
 
 Provider.prototype.programListArray = function (url,i, callback) {
-    console.log(url);
     var _self = this;
 
     this.rovicall(url, function(body){
@@ -111,13 +105,10 @@ Provider.prototype.programListArray = function (url,i, callback) {
                     callback();}
             }
         });
-
     });
 };
 
 Provider.prototype.rovicall = function (url, callback) {
-    console.log("rovicall");
-
     roviReq(url, function (error, response, body) {
         if (!error && response.statusCode == 200) {
             callback(body);

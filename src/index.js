@@ -12,14 +12,12 @@ var http = require('http'),
 (function () {
     var mongoClient = new MongoClient(new Server(serverConfig.dbServer.mongoHost, serverConfig.dbServer.mongoPort));
 
-    mongoClient.open(function (err, mongoClient) { //C
+    mongoClient.open(function (err, mongoClient) {
         if (!mongoClient) {
             console.error("Error! Exiting... Must start MongoDB first");
-            process.exit(1); //D
+            process.exit(1);
         }
-        var db = mongoClient.db(serverConfig.dbServer.dbName);  //E
-        //collectionDriver = new CollectionDriver(db); //F
-        //initialize();
+        var db = mongoClient.db(serverConfig.dbServer.dbName);
         provider.collectionDriver = new CollectionDriver(db);
         provider.initialize();
 
