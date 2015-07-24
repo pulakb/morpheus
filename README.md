@@ -24,3 +24,14 @@ node-rovi/
   |  |- package.json
   |- .gitignore
 ```
+
+#### Quick Start
+
+Install Node.js and then:
+
+```
+$ git clone https://github.com/pulakb/morpheus.git
+$ cd morpheus
+$ npm install
+$ npm start
+```
