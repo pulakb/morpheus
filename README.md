@@ -32,6 +32,7 @@ Install Node.js and then:
 ```
 $ git clone https://github.com/pulakb/morpheus.git
 $ cd morpheus
+$ cd src
 $ npm install
 $ npm start
 ```
